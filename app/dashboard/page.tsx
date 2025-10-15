@@ -142,16 +142,24 @@ export default function DashboardPage() {
                     <div className="text-right">
                       <p className="text-sm font-medium text-gray-900">${product.price}</p>
                       <p className={`text-sm ${product.quantity < 10 ? 'text-red-600' : 'text-gray-500'}`}>
+<<<<<<< HEAD
                         {product.quantity} units in stock
                       </p>
                       {/* EXPIRY DATE ADDED HERE */}
                       <p className="text-sm text-gray-500">
                         Expires: {product.expiryDate ? new Date(product.expiryDate).toLocaleDateString() : 'No expiry'}
+=======
+                        {product.quantity} in stock
+>>>>>>> 57bd35f7e7ab3826e39a8bfe28f88badbeaf9f2e
                       </p>
                     </div>
                     <div className="flex items-center text-sm text-gray-500">
                       <Clock className="w-4 h-4 mr-1" />
+<<<<<<< HEAD
                       Added: {new Date(product.createdAt).toLocaleDateString()}
+=======
+                      {new Date(product.createdAt).toLocaleDateString()}
+>>>>>>> 57bd35f7e7ab3826e39a8bfe28f88badbeaf9f2e
                     </div>
                   </div>
                 </div>

@@ -3,9 +3,12 @@ import { getServerSession } from 'next-auth'
 import connectDB from '@/lib/mongodb'
 import Product from '@/lib/models/Product'
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 // Note: Removed the unused 'authOptions' import, assuming getServerSession() works without it here.
 >>>>>>> 572477e4e1dba04a53965b4fbce08a6cbd16e057
+=======
+>>>>>>> 57bd35f7e7ab3826e39a8bfe28f88badbeaf9f2e
 
 export async function GET(request: NextRequest) {
   try {
@@ -16,6 +19,7 @@ export async function GET(request: NextRequest) {
 
     await connectDB()
     
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
     // --- 🛑 NEW: Expiry Management Calculations ---
@@ -36,6 +40,8 @@ export async function GET(request: NextRequest) {
     // ----------------------------------------------------
 
 >>>>>>> 572477e4e1dba04a53965b4fbce08a6cbd16e057
+=======
+>>>>>>> 57bd35f7e7ab3826e39a8bfe28f88badbeaf9f2e
     // Get total products count
     const totalProducts = await Product.countDocuments()
     
@@ -60,6 +66,7 @@ export async function GET(request: NextRequest) {
     const totalValue = valueAggregation[0]?.totalValue || 0
     
 <<<<<<< HEAD
+<<<<<<< HEAD
     // Get category distribution
     const categoryDistribution = await Product.aggregate([
 =======
@@ -67,6 +74,10 @@ export async function GET(request: NextRequest) {
     const categoryDistribution = await Product.aggregate([
       // ... your existing category distribution logic
 >>>>>>> 572477e4e1dba04a53965b4fbce08a6cbd16e057
+=======
+    // Get category distribution
+    const categoryDistribution = await Product.aggregate([
+>>>>>>> 57bd35f7e7ab3826e39a8bfe28f88badbeaf9f2e
       {
         $group: {
           _id: '$category',
@@ -86,9 +97,12 @@ export async function GET(request: NextRequest) {
     
     const monthlyTrends = await Product.aggregate([
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
       // ... your existing monthly trends logic
 >>>>>>> 572477e4e1dba04a53965b4fbce08a6cbd16e057
+=======
+>>>>>>> 57bd35f7e7ab3826e39a8bfe28f88badbeaf9f2e
       {
         $match: {
           createdAt: { $gte: threeMonthsAgo }
@@ -123,6 +137,7 @@ export async function GET(request: NextRequest) {
         outOfStock: outOfStockProducts,
         topCategory,
 <<<<<<< HEAD
+<<<<<<< HEAD
         monthlyGrowth
 =======
         monthlyGrowth,
@@ -130,6 +145,9 @@ export async function GET(request: NextRequest) {
         expiredItems: expiredProducts, // Now a count
         expiringSoonItems: expiringSoonProducts, // Now a count
 >>>>>>> 572477e4e1dba04a53965b4fbce08a6cbd16e057
+=======
+        monthlyGrowth
+>>>>>>> 57bd35f7e7ab3826e39a8bfe28f88badbeaf9f2e
       },
       categoryDistribution,
       monthlyTrends,

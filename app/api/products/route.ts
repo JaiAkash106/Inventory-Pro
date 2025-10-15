@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 export async function DELETE(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
@@ -96,6 +97,12 @@ import mongoose from 'mongoose'
 import ProductOrig from '@/lib/models/Product'
 const Product = ProductOrig as mongoose.Model<any>
 import type { IProduct } from '@/lib/models/Product'
+=======
+import { NextRequest, NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth'
+import connectDB from '@/lib/mongodb'
+import Product, { IProduct } from '@/lib/models/Product'
+>>>>>>> 57bd35f7e7ab3826e39a8bfe28f88badbeaf9f2e
 import { Session } from 'next-auth'
 import { FilterQuery } from 'mongoose'
 import { authOptions } from '../auth/auth.config'
@@ -130,12 +137,19 @@ export async function GET(request: NextRequest) {
     }
 
     const products = await Product.find(query)
+<<<<<<< HEAD
       .populate('createdBy', 'name email')
+=======
+      .populate<{ createdBy: { name: string; email: string } }>('createdBy', 'name email')
+>>>>>>> 57bd35f7e7ab3826e39a8bfe28f88badbeaf9f2e
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
       .limit(limit)
       .lean()
+<<<<<<< HEAD
       .exec()
+=======
+>>>>>>> 57bd35f7e7ab3826e39a8bfe28f88badbeaf9f2e
 
     const total = await Product.countDocuments(query)
 
@@ -175,8 +189,12 @@ export async function POST(request: NextRequest) {
       description,
       lowStockThreshold,
       sku,
+<<<<<<< HEAD
       imageUrl,
       expiryDate 
+=======
+      imageUrl
+>>>>>>> 57bd35f7e7ab3826e39a8bfe28f88badbeaf9f2e
     } = data
 
     // Validate required fields
@@ -188,7 +206,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if SKU already exists
+<<<<<<< HEAD
   const existingProduct = await Product.findOne({ sku }).lean().exec()
+=======
+    const existingProduct = await Product.findOne({ sku }).lean()
+>>>>>>> 57bd35f7e7ab3826e39a8bfe28f88badbeaf9f2e
     if (existingProduct) {
       return NextResponse.json(
         { message: 'SKU already exists' },
@@ -196,9 +218,14 @@ export async function POST(request: NextRequest) {
       )
     }
 
+<<<<<<< HEAD
     const dateToSave = expiryDate ? new Date(expiryDate) : undefined
 
     const productData: Partial<IProduct> = { // Use Partial<IProduct> or define a strict body type
+=======
+    // At this point we know session.user.id exists because we checked above
+    const productData = {
+>>>>>>> 57bd35f7e7ab3826e39a8bfe28f88badbeaf9f2e
       name,
       category,
       quantity: parseInt(quantity.toString()),
@@ -207,12 +234,19 @@ export async function POST(request: NextRequest) {
       lowStockThreshold: parseInt(lowStockThreshold?.toString() || '10'),
       sku,
       imageUrl,
+<<<<<<< HEAD
       createdBy: session.user.id,
       // 🛑 NEW: Include the converted expiryDate
       expiryDate: dateToSave as any // Cast is sometimes needed for Mongoose Date type on creation
     }
 
   const product = await Product.create(productData)
+=======
+      createdBy: session.user.id // Session is guaranteed to have user.id here
+    }
+
+    const product = await Product.create(productData)
+>>>>>>> 57bd35f7e7ab3826e39a8bfe28f88badbeaf9f2e
 
     await product.save()
     await product.populate('createdBy', 'name email')
