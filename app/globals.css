@@ -10,7 +10,6 @@
   body {
     @apply bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100;
   }
-<<<<<<< HEAD
   :root {
     --background: 0 0% 100%;
     --foreground: 224 71.4% 4.1%;
@@ -64,8 +63,6 @@
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
   }
-=======
->>>>>>> 572477e4e1dba04a53965b4fbce08a6cbd16e057
 }
 
 @layer components {
@@ -88,7 +85,6 @@
   .btn-secondary {
     @apply bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-lg transition-colors;
   }
-<<<<<<< HEAD
 }
 
 
@@ -100,6 +96,4 @@
   body {
     @apply bg-background text-foreground;
   }
-=======
->>>>>>> 572477e4e1dba04a53965b4fbce08a6cbd16e057
 }

@@ -69,10 +69,18 @@ export default function StockExpiryPage() {
     try {
       const response = await fetch('/api/products')
       if (response.ok) {
-        const productsData = await response.json()
+        const data = await response.json()
+        // API might return an array or an object with a `products` property.
+        const productsData = Array.isArray(data)
+          ? data
+          : Array.isArray(data?.products)
+          ? data.products
+          : []
+
         setProducts(productsData)
         calculateStats(productsData)
         generateNotifications(productsData)
+        console.log('📦 Products loaded (stock-expiry):', productsData.length, { sourceShape: Array.isArray(data) ? 'array' : data && data.products ? 'object.products' : 'unknown' })
       } else {
         console.error('Failed to fetch products:', response.status)
       }
@@ -196,12 +204,13 @@ export default function StockExpiryPage() {
     }
   }
 
-  // Get unique categories for filter dropdown
-  const categories = ['all', ...new Set(products.map(p => p.category))]
+  // Get unique categories for filter dropdown (guard in case products is not an array)
+  const categories = ['all', ...Array.from(new Set((Array.isArray(products) ? products : []).map(p => p.category)))]
 
-  // Filter products based on current filters
+  // Filter products based on current filters (guard if products isn't an array)
   const getFilteredProducts = () => {
-    return products.filter(product => {
+    const source = Array.isArray(products) ? products : []
+    return source.filter(product => {
       // Search filter
       const matchesSearch = filters.searchQuery === '' || 
         product.name.toLowerCase().includes(filters.searchQuery.toLowerCase()) ||

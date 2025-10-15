@@ -5,7 +5,6 @@ module.exports = {
     './components/**/*.{js,ts,jsx,tsx,mdx}',
     './app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
-<<<<<<< HEAD
   darkMode: ['class', 'class'],
   theme: {
   	extend: {
@@ -67,24 +66,4 @@ module.exports = {
   	}
   },
   plugins: [require("tailwindcss-animate")],
-=======
-  darkMode: 'class',
-  theme: {
-    extend: {
-      colors: {
-        primary: {
-          50: '#eff6ff',
-          500: '#3b82f6',
-          600: '#2563eb',
-          700: '#1d4ed8',
-        },
-        sidebar: {
-          light: '#f8fafc',
-          dark: '#1e293b',
-        }
-      },
-    },
-  },
-  plugins: [],
->>>>>>> 572477e4e1dba04a53965b4fbce08a6cbd16e057
 }

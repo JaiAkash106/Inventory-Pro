@@ -69,8 +69,10 @@ export default function BillingPage() {
       const response = await fetch('/api/products')
       if (response.ok) {
         const data = await response.json()
-        setProducts(data)
-        console.log('📦 Products loaded:', data.length)
+        // API might return an array or an object with a `products` property.
+        const productList = Array.isArray(data) ? data : Array.isArray(data?.products) ? data.products : []
+        setProducts(productList)
+        console.log('📦 Products loaded:', productList.length, { sourceShape: Array.isArray(data) ? 'array' : data && data.products ? 'object.products' : 'unknown' })
       } else {
         throw new Error('Failed to fetch products')
       }
@@ -82,11 +84,14 @@ export default function BillingPage() {
     }
   }
 
-  const filteredProducts = products.filter(product =>
-    product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    product.sku.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    product.category.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  // Guard against unexpected shapes (prevent "filter is not a function")
+  const filteredProducts = Array.isArray(products)
+    ? products.filter(product =>
+        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.sku.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.category.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    : []
 
   const addToCart = (product: Product) => {
     if (product.quantity <= 0) {
@@ -537,9 +542,9 @@ export default function BillingPage() {
     setCart([])
   }
 
-  const lowStockProducts = products.filter(product => 
-    product.quantity <= product.lowStockThreshold
-  )
+  const lowStockProducts = Array.isArray(products)
+    ? products.filter(product => product.quantity <= product.lowStockThreshold)
+    : []
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">

@@ -92,35 +92,6 @@ export default function DashboardPage() {
           </div>
         </div>
 
-<<<<<<< HEAD
-=======
-         {/* 🛑 NEW: Expired Items Card */}
-        <div className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow">
-          <div className="flex items-center">
-            <div className="p-3 bg-red-100 rounded-lg">
-              <Clock className="w-6 h-6 text-red-600" /> {/* Clock or Trash2 icon works well here */}
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Expired Items</p>
-              <p className="mt-1 text-2xl font-semibold text-red-600">{stats?.expiredItems || 0}</p>
-            </div>
-          </div>
-        </div>
-
-        {/* 🛑 NEW: Expiring Soon Card */}
-        <div className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow">
-          <div className="flex items-center">
-            <div className="p-3 bg-yellow-100 rounded-lg">
-              <AlertTriangle className="w-6 h-6 text-yellow-600" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Expiring Soon</p>
-              <p className="mt-1 text-2xl font-semibold text-yellow-600">{stats?.expiringSoonItems || 0}</p>
-            </div>
-          </div>
-        </div>
-        
->>>>>>> 572477e4e1dba04a53965b4fbce08a6cbd16e057
         {/* Growth Metric */}
         <div className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow">
           <div className="flex items-center">
@@ -171,24 +142,16 @@ export default function DashboardPage() {
                     <div className="text-right">
                       <p className="text-sm font-medium text-gray-900">${product.price}</p>
                       <p className={`text-sm ${product.quantity < 10 ? 'text-red-600' : 'text-gray-500'}`}>
-<<<<<<< HEAD
                         {product.quantity} units in stock
                       </p>
                       {/* EXPIRY DATE ADDED HERE */}
                       <p className="text-sm text-gray-500">
                         Expires: {product.expiryDate ? new Date(product.expiryDate).toLocaleDateString() : 'No expiry'}
-=======
-                        {product.quantity} in stock
->>>>>>> 572477e4e1dba04a53965b4fbce08a6cbd16e057
                       </p>
                     </div>
                     <div className="flex items-center text-sm text-gray-500">
                       <Clock className="w-4 h-4 mr-1" />
-<<<<<<< HEAD
                       Added: {new Date(product.createdAt).toLocaleDateString()}
-=======
-                      {new Date(product.createdAt).toLocaleDateString()}
->>>>>>> 572477e4e1dba04a53965b4fbce08a6cbd16e057
                     </div>
                   </div>
                 </div>

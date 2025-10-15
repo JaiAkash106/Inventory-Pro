@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-
-=======
->>>>>>> 572477e4e1dba04a53965b4fbce08a6cbd16e057
 import { AuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import connectDB from '@/lib/mongodb'

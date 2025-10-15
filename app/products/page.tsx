@@ -7,80 +7,36 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { toast } from 'react-hot-toast'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
-<<<<<<< HEAD
 
 async function fetchProducts({ search = '', category = '' }) {
   const params = new URLSearchParams()
   if (search) params.append('search', search)
   if (category) params.append('category', category)
-=======
-// --- Add these utilities to app/products/page.tsx ---
-
-const formatDate = (dateString?: string | null) => {
-    if (!dateString) return 'N/A';
-    // Use Intl.DateTimeFormat for robust, localized formatting
-    return new Intl.DateTimeFormat('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: '2-digit',
-    }).format(new Date(dateString));
-};
-
-const getExpiryStatus = (dateString?: string | null): 'safe' | 'warning' | 'expired' => {
-    if (!dateString) return 'safe';
-    const now = new Date();
-    now.setHours(0, 0, 0, 0); 
-    const expiry = new Date(dateString);
-    expiry.setHours(0, 0, 0, 0); // Normalize to start of day
-
-    if (expiry.getTime() < now.getTime()) {
-        return 'expired'; // Date is in the past
-    }
-    
-    // Check for expiring soon (e.g., within 30 days)
-    const thirtyDaysFromNow = new Date(now);
-    thirtyDaysFromNow.setDate(now.getDate() + 30);
-
-    if (expiry.getTime() <= thirtyDaysFromNow.getTime()) {
-        return 'warning';
-    }
-    
-    return 'safe';
-};
-
-const getStatusClassName = (status: 'safe' | 'warning' | 'expired') => {
-    switch (status) {
-        case 'expired':
-            return 'bg-red-100 text-red-700 font-semibold border border-red-300'; // Added border for contrast
-        case 'warning':
-            return 'bg-yellow-100 text-yellow-700 font-medium border border-yellow-300';
-        case 'safe':
-        default:
-            return 'text-gray-600 dark:text-gray-400';
-    }
-};
-// ----------------------------------------------------
-
-async function fetchProducts({ search = '', category = '', page = 1 }) {
-  const params = new URLSearchParams()
-  if (search) params.append('search', search)
-  if (category) params.append('category', category)
-  params.append('page', page.toString())
->>>>>>> 572477e4e1dba04a53965b4fbce08a6cbd16e057
   
   const response = await fetch(`/api/products?${params.toString()}`)
   if (!response.ok) {
-    throw new Error('Failed to fetch products')
+    // Try to read error body for better debugging
+    let msg = 'Failed to fetch products'
+    try {
+      const err = await response.json()
+      msg = err?.message || msg
+    } catch (e) {
+      // ignore
+    }
+    throw new Error(msg)
   }
-  return response.json()
+
+  const data = await response.json()
+  // API returns either an array or an object like { products, pagination }
+  if (Array.isArray(data)) return data
+  if (Array.isArray(data?.products)) return data.products
+  // If shape is unexpected return empty array
+  console.warn('fetchProducts: unexpected response shape', data)
+  return []
 }
 
 async function deleteProduct(id: string) {
-<<<<<<< HEAD
   const response = await fetch(`/api/products?id=${id}`, {
-=======
-  const response = await fetch(`/api/products/${id}`, {
->>>>>>> 572477e4e1dba04a53965b4fbce08a6cbd16e057
     method: 'DELETE',
   })
   if (!response.ok) {
@@ -93,7 +49,6 @@ export default function ProductsPage() {
   const queryClient = useQueryClient()
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('')
-<<<<<<< HEAD
   const [deleteProductItem, setDeleteProductItem] = useState<any>(null)
   
   const { data: products = [], isLoading, error } = useQuery({
@@ -101,17 +56,6 @@ export default function ProductsPage() {
     queryFn: () => fetchProducts({ 
       search: searchTerm, 
       category: selectedCategory
-=======
-  const [currentPage, setCurrentPage] = useState(1)
-  const [deleteProductItem, setDeleteProductItem] = useState<any>(null)
-  
-  const { data, isLoading, error } = useQuery({
-    queryKey: ['products', searchTerm, selectedCategory, currentPage],
-    queryFn: () => fetchProducts({ 
-      search: searchTerm, 
-      category: selectedCategory,
-      page: currentPage
->>>>>>> 572477e4e1dba04a53965b4fbce08a6cbd16e057
     }),
   })
 
@@ -126,11 +70,7 @@ export default function ProductsPage() {
     }
   })
 
-<<<<<<< HEAD
   const categories = ['Electronics', 'Kitchen', 'Stationery', 'Clothing', 'Books', 'Food', 'Home & Garden', 'Health & Beauty', 'Sports', 'Other']
-=======
-  const categories = ['Electronics', 'Kitchen', 'Stationery', 'Clothing', 'Books']
->>>>>>> 572477e4e1dba04a53965b4fbce08a6cbd16e057
 
   if (error) {
     return (
@@ -142,12 +82,6 @@ export default function ProductsPage() {
     )
   }
 
-<<<<<<< HEAD
-=======
-  const products = data?.products || []
-  const pagination = data?.pagination || { total: 0, page: 1, pages: 1 }
-
->>>>>>> 572477e4e1dba04a53965b4fbce08a6cbd16e057
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -158,11 +92,7 @@ export default function ProductsPage() {
         </div>
         <Link
           href="/products/add"
-<<<<<<< HEAD
           className="btn-primary inline-flex items-center mt-4 sm:mt-0 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-=======
-          className="btn-primary inline-flex items-center mt-4 sm:mt-0"
->>>>>>> 572477e4e1dba04a53965b4fbce08a6cbd16e057
         >
           <Plus className="w-4 h-4 mr-2" />
           Add Product
@@ -170,11 +100,7 @@ export default function ProductsPage() {
       </div>
 
       {/* Filters */}
-<<<<<<< HEAD
       <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-4">
-=======
-      <div className="card p-4">
->>>>>>> 572477e4e1dba04a53965b4fbce08a6cbd16e057
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="flex-1">
             <div className="relative">
@@ -182,11 +108,7 @@ export default function ProductsPage() {
               <input
                 type="text"
                 placeholder="Search products..."
-<<<<<<< HEAD
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-=======
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-gray-700"
->>>>>>> 572477e4e1dba04a53965b4fbce08a6cbd16e057
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -194,11 +116,7 @@ export default function ProductsPage() {
           </div>
           <div className="sm:w-48">
             <select
-<<<<<<< HEAD
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-=======
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-gray-700"
->>>>>>> 572477e4e1dba04a53965b4fbce08a6cbd16e057
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
             >
@@ -214,16 +132,11 @@ export default function ProductsPage() {
       {/* Loading State */}
       {isLoading && (
         <div className="flex justify-center items-center h-64">
-<<<<<<< HEAD
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-=======
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
->>>>>>> 572477e4e1dba04a53965b4fbce08a6cbd16e057
         </div>
       )}
 
       {/* Products Table */}
-<<<<<<< HEAD
       {!isLoading && products.length > 0 && (
         <div className="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
           <div className="overflow-x-auto">
@@ -249,71 +162,25 @@ export default function ProductsPage() {
                     Expiry Date
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-=======
-      {!isLoading && (
-        <div className="card overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-              <thead className="bg-gray-50 dark:bg-gray-800">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    Product
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    Category
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    SKU
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    Expiry Date
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    Quantity
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    Price
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
->>>>>>> 572477e4e1dba04a53965b4fbce08a6cbd16e057
                     Actions
                   </th>
                 </tr>
               </thead>
-<<<<<<< HEAD
               <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                 {products.map((product: any) => (
                   <tr key={product._id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
-=======
-              <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
-                {products.map((product: any) => {
-                  const expiryStatus = getExpiryStatus(product.expiryDate);
-                  return (
-                  <tr key={product._id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
->>>>>>> 572477e4e1dba04a53965b4fbce08a6cbd16e057
                     <td className="px-6 py-4 whitespace-nowrap">
                       <Link href={`/products/${product._id}`} className="flex items-center group">
                         <div className="flex-shrink-0 h-10 w-10">
-                          {product.imageUrl ? (
-                            <div className="relative h-10 w-10">
-                              <Image
-                                src={product.imageUrl}
-                                alt={product.name}
-                                fill
-                                className="rounded-lg object-cover"
-                              />
-                            </div>
-                          ) : (
-<<<<<<< HEAD
-                            <div className="h-10 w-10 rounded-lg bg-gray-200 dark:bg-gray-600 flex items-center justify-center">
-=======
-                            <div className="h-10 w-10 rounded-lg bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
->>>>>>> 572477e4e1dba04a53965b4fbce08a6cbd16e057
-                              <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                                {product.name.charAt(0)}
-                              </span>
-                            </div>
-                          )}
+                          <div className="relative h-10 w-10">
+                            <Image
+                              src={product.imageUrl && typeof product.imageUrl === 'string' && product.imageUrl.trim() !== '' ? product.imageUrl : '/fallback-product.png'}
+                              alt={product.name}
+                              fill
+                              className="rounded-lg object-cover"
+                              onError={(e) => { e.currentTarget.src = '/fallback-product.png'; }}
+                            />
+                          </div>
                         </div>
                         <div className="ml-4">
                           <div className="text-sm font-medium text-gray-900 dark:text-white group-hover:text-blue-600">
@@ -335,14 +202,6 @@ export default function ProductsPage() {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                       {product.sku}
                     </td>
-<<<<<<< HEAD
-=======
-                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded ${getStatusClassName(expiryStatus)}`}>
-                        {formatDate(product.expiryDate)}
-                      </span>
-                    </td>
->>>>>>> 572477e4e1dba04a53965b4fbce08a6cbd16e057
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                         product.quantity <= (product.lowStockThreshold || 10)
@@ -353,24 +212,16 @@ export default function ProductsPage() {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-<<<<<<< HEAD
                       ${typeof product.price === 'number' ? product.price.toFixed(2) : '0.00'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                       {product.expiryDate ? new Date(product.expiryDate).toLocaleDateString() : 'No expiry'}
-=======
-                      ${product.price?.toFixed(2)}
->>>>>>> 572477e4e1dba04a53965b4fbce08a6cbd16e057
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex space-x-2">
                         <Link
                           href={`/products/edit/${product._id}`}
-<<<<<<< HEAD
                           className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
-=======
-                          className="text-primary-600 hover:text-primary-900 dark:text-primary-400 dark:hover:text-primary-300"
->>>>>>> 572477e4e1dba04a53965b4fbce08a6cbd16e057
                           title="Edit product"
                         >
                           <Edit className="w-4 h-4" />
@@ -386,12 +237,7 @@ export default function ProductsPage() {
                       </div>
                     </td>
                   </tr>
-<<<<<<< HEAD
                 ))}
-=======
-                  )
-                })}
->>>>>>> 572477e4e1dba04a53965b4fbce08a6cbd16e057
               </tbody>
             </table>
           </div>
@@ -400,7 +246,6 @@ export default function ProductsPage() {
 
       {/* Empty State */}
       {!isLoading && products.length === 0 && (
-<<<<<<< HEAD
         <div className="text-center py-12 bg-white dark:bg-gray-800 shadow rounded-lg">
           <div className="max-w-md mx-auto">
             <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -425,35 +270,6 @@ export default function ProductsPage() {
               </Link>
             )}
           </div>
-=======
-        <div className="text-center py-12">
-          <p className="text-gray-500 dark:text-gray-400">No products found matching your criteria.</p>
-        </div>
-      )}
-
-      {/* Pagination */}
-      {pagination.pages > 1 && (
-        <div className="flex justify-center">
-          <nav className="inline-flex rounded-md shadow">
-            {Array.from({ length: pagination.pages }, (_, i) => i + 1).map((page) => (
-              <button
-                key={page}
-                onClick={() => setCurrentPage(page)}
-                className={`px-3 py-2 text-sm font-medium border ${
-                  currentPage === page
-                    ? 'bg-primary-600 text-white border-primary-600'
-                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700'
-                } ${
-                  page === 1 ? 'rounded-l-md' : ''
-                } ${
-                  page === pagination.pages ? 'rounded-r-md' : ''
-                }`}
-              >
-                {page}
-              </button>
-            ))}
-          </nav>
->>>>>>> 572477e4e1dba04a53965b4fbce08a6cbd16e057
         </div>
       )}
 
