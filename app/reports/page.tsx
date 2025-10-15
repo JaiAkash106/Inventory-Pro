@@ -59,6 +59,12 @@ interface SalesData {
   totalAmount: number
   date: string
   customerId?: string
+  total?: number
+  items?: Array<{
+    productId: string
+    quantity: number
+    price: number
+  }>
 }
 
 interface ReportData {
@@ -167,7 +173,7 @@ export default function ReportsPage() {
       // Fetch products from your actual database
       const [productsResponse, salesResponse] = await Promise.all([
         fetch('/api/products'),
-        fetch('/api/sales')
+        fetch('/api/orders')
       ])
 
       if (productsResponse.ok) {
@@ -187,11 +193,16 @@ export default function ReportsPage() {
       }
 
       if (salesResponse.ok) {
-        const salesData = await salesResponse.json()
-        console.log('💰 Sales data loaded:', salesData.length, 'sales records')
-        setSalesData(salesData)
+        const rawSales = await salesResponse.json()
+        const extractedSalesData = Array.isArray(rawSales) 
+            ? rawSales // handles a raw array response
+            : Array.isArray(rawSales?.orders) 
+            ? rawSales.orders // handles the {orders: [...]} object response
+            : []
+        console.log('💰 Sales data loaded:', extractedSalesData.length, 'sales records')
+        setSalesData(extractedSalesData)
       } else {
-        console.log('Sales API endpoint not available')
+        console.error('Failed to fetch sales/orders data')
         setSalesData([])
       }
 
@@ -216,7 +227,12 @@ export default function ReportsPage() {
 
     // Calculate real metrics from database
     const totalProducts = filteredProducts.length
-    const totalValue = filteredProducts.reduce((sum, product) => sum + (product.quantity * product.cost), 0)
+    const totalValue = filteredProducts.reduce((sum, product) => {
+        // Use Number() and logical OR (|| 0) to guarantee a numeric value
+        const quantity = Number(product.quantity) || 0;
+        const cost = Number(product.cost) || 0;
+        return sum + (quantity * cost);
+    }, 0)
     const lowStockItems = filteredProducts.filter(p => p.quantity <= p.lowStockThreshold && p.quantity > 0).length
     const outOfStockItems = filteredProducts.filter(p => p.quantity === 0).length
 
@@ -261,29 +277,56 @@ export default function ReportsPage() {
     let unitsSold = 0
 
     if (sales.length > 0) {
-      // Use actual sales data if available
-      sales.forEach(sale => {
-        totalRevenue += sale.totalAmount
-        unitsSold += sale.quantity
-        
-        // Calculate profit (revenue - cost)
-        const product = products.find(p => p._id === sale.productId)
-        if (product) {
-          totalProfit += sale.totalAmount - (sale.quantity * product.cost)
-        }
-      })
-    } else {
-      // Estimate from inventory movement
-      products.forEach(product => {
+        sales.forEach(sale => {
+            // 1. Get Revenue for this Order (Sale)
+            const saleTotalRevenue = Number(sale.total) || 0; 
+            totalRevenue += saleTotalRevenue; 
+            
+            let orderCOGS = 0; // <--- Variable to track COGS for THIS order
+            
+            const items = sale.items || []; 
+            items.forEach((item: any) => {
+                const itemQuantity = Number(item.quantity) || 0;
+                
+                // 2. Aggregate Units Sold
+                unitsSold += itemQuantity; 
+                
+                // 3. Calculate COGS
+                const product = products.find(p => p._id === item.productId);
+
+                if (product) {
+                    // Check your product data to ensure 'cost' is the correct property name
+                    const productCost = Number(product.cost) || 0; 
+                    
+                    // Accumulate COGS for the entire order
+                    orderCOGS += (itemQuantity * productCost);
+                }
+            });
+            
+            // 4. Calculate Final Profit for this Order: Revenue - COGS
+            // Total Profit accumulates the profit from all orders.
+            totalProfit += saleTotalRevenue - orderCOGS; 
+
+            // ❌ Ensure you DO NOT have the line: totalProfit += saleTotalRevenue; 
+        });
+    }else {
+    // Estimate from inventory movement
+    products.forEach(product => {
+        // 1. Sanitize the cost and price from the product object
+        const sanitizedCost = Number(product.cost) || 0; // 💡 Renamed to sanitizedCost
+        const productPrice = Number(product.price) || 0;
+
         const estimatedSold = Math.max(0, (product.lowStockThreshold * 5) - product.quantity)
-        const productRevenue = estimatedSold * product.price
-        const productCost = estimatedSold * product.cost
+        
+        // 2. Calculate Revenue and COGS using sanitized values
+        const productRevenue = estimatedSold * productPrice 
+        const productCOGS = estimatedSold * sanitizedCost // 💡 Use the sanitizedCost here
         
         totalRevenue += productRevenue
-        totalProfit += productRevenue - productCost
+        totalProfit += productRevenue - productCOGS // 💡 Use the new variable here
         unitsSold += estimatedSold
-      })
-    }
+    })
+  }
 
     return { totalRevenue, unitsSold, totalProfit }
   }
@@ -817,8 +860,8 @@ export default function ReportsPage() {
         />
         <MetricCard
           title="Profit Margin"
-          value={`${reportData.profitMargin.toFixed(1)}%`}
-          change={reportData.profitMargin > 0 ? 3.1 : 0}
+          value={`${(reportData.profitMargin || 0).toFixed(1)}%`}
+          change={reportData.profitMargin > 0 ? 3.1 : 0} 
           icon={<BarChart3 className="text-purple-600" size={20} />}
           bgColor="bg-purple-50"
           description="Net profit percentage"
@@ -1043,7 +1086,7 @@ export default function ReportsPage() {
                 </div>
                 <div className="text-center p-4 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
                   <DollarSign className="w-6 h-6 text-green-600 mx-auto mb-2" />
-                  <p className="text-xl font-bold text-slate-900">${(reportData.totalValue / 1000).toFixed(0)}k</p>
+                  <p className="text-xl font-bold text-slate-900">${((reportData.totalValue || 0) / 1000).toFixed(0)}k</p>
                   <p className="text-sm text-slate-600">Inventory Value</p>
                 </div>
                 <div className="text-center p-4 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
